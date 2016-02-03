@@ -5,13 +5,16 @@ trap 'rm -rf "$tmp"' 0
 cd "$tmp" || exit 1
 
 base64 >b64 &&
-split -b 2048 b64 part. &&
-cur=0 &&
+split -b 384 b64 part. &&
 total=$(ls part.* | wc -l) &&
 for i in part.*; do
-	cur=$(($cur + 1))
-	qrencode -t eps <$i >tmp.eps &&
-	convert -label "part $cur/$total" tmp.eps part-$i.ps ||
-	exit 1
+	qrencode -t eps <$i >$i.eps || exit 1
 done &&
-psjoin part-*.ps
+montage -geometry '1x1<' -tile 2x3 $(
+	total=$(ls *.eps | wc -l)
+	cur=1
+	for i in *.eps; do
+		echo "-label $cur/$total $i"
+		cur=$(($cur + 1))
+	done) all.ps &&
+cat all.ps
