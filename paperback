@@ -1,0 +1,17 @@
+#!/bin/sh
+
+tmp=$(mktemp -d /tmp/backup.XXXXXX) || exit 1
+trap 'rm -rf "$tmp"' 0
+cd "$tmp" || exit 1
+
+base64 >b64 &&
+split -b 2048 b64 part. &&
+cur=0 &&
+total=$(ls part.* | wc -l) &&
+for i in part.*; do
+	cur=$(($cur + 1))
+	qrencode -t eps <$i >tmp.eps &&
+	convert -label "part $cur/$total" tmp.eps part-$i.ps ||
+	exit 1
+done &&
+psjoin part-*.ps

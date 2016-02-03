@@ -1,0 +1,29 @@
+Create backups of arbitrary data to paper using qrencodes. Data is split
+across several pages automatically.
+
+Usage is something like:
+
+    # create a backup
+    gpg --export-secret-key | paperkey | paperback | lpr
+
+    # restore; you'll need to present the qr pages in order
+    zbarcam --raw | base64 -d | paperkey --pubring ... | gpg --import
+
+Requires:
+
+  - qrencode
+  - imagemagick
+  - zbar
+  - psjoin (from psutils)
+
+TODO:
+
+  - can probably fit more data per page; needs testing
+
+  - could possibly use 8bit QR encoding, but zbar does not seem to
+    support it
+
+  - "part" title gets cut off by some printers; probably needs better
+    margins
+
+  - title should be customizable
